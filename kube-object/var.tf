@@ -1,3 +1,9 @@
+################
+## K8S Provider
+variable "config_path" {
+  default = "~/.kube/config"
+}
+
 ##################################
 ## Set the name of the name space.
 variable "cicd-ns" {

@@ -7,11 +7,24 @@ provider "helm" {
   }
 }
 
+
+# Wait a moment for the kubeconfig file to be created.
+resource "null_resource" "wating" {}
+resource "time_sleep" "wait_15_seconds" {
+  depends_on = [null_resource.wating]
+
+  create_duration = "15s"
+}
+
+
+
 # Create Namespaces
 resource "kubernetes_namespace" "nginx" {
   metadata {
     name = var.nginx-ns
   }
+
+  depends_on = [time_sleep.wait_15_seconds]
 }
 resource "kubernetes_namespace" "cicd" {
   metadata {

@@ -30,7 +30,7 @@ data "helm_repository" "nginx" {
   url  = "https://kubernetes.github.io/ingress-nginx"
 }
 resource "helm_release" "nginx" {
-  name       = "nginx-ingress"
+  name       = "ingress-nginx"
   repository = data.helm_repository.nginx.metadata[0].name
   chart      = "ingress-nginx/ingress-nginx"
   values = [

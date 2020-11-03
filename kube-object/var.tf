@@ -6,6 +6,9 @@ variable "config_path" {
 
 ##################################
 ## Set the name of the name space.
+variable "node-handler-ns" {
+  default = "node-handler"
+}
 variable "cicd-ns" {
   default = "cicd"
 }
@@ -17,7 +20,10 @@ variable "monitoring-ns" {
 }
 
 ####################
-## Necessary Objects... (CICD, Nginx-ingress)
+## Necessary Objects... (cluster_autoscaler, node_handler, CICD, Nginx-ingress)
+variable "node-handler-path" {
+  description = "Input the path to Node-Handler' values.yaml here"
+}
 variable "jenkins-path" {
   description = "Input the path to Jenkins' values.yaml here"
 }

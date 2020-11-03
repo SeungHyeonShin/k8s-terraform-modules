@@ -8,23 +8,16 @@ provider "helm" {
 }
 
 
-# Wait a moment for the kubeconfig file to be created.
-resource "null_resource" "wating" {}
-resource "time_sleep" "wait_15_seconds" {
-  depends_on = [null_resource.wating]
-
-  create_duration = "15s"
-}
-
-
-
 # Create Namespaces
+resource "kubernetes_namespace" "node-handler" {
+  metadata {
+    name = var.node-handler-ns
+  }
+}
 resource "kubernetes_namespace" "nginx" {
   metadata {
     name = var.nginx-ns
   }
-
-  depends_on = [time_sleep.wait_15_seconds]
 }
 resource "kubernetes_namespace" "cicd" {
   metadata {
@@ -35,6 +28,22 @@ resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = var.monitoring-ns
   }
+}
+
+# Deploy Node-Termination-Handler
+data "helm_repository" "node-handler" {
+  name = "eks"
+  url  = "https://aws.github.io/eks-charts"
+}
+resource "helm_release" "node-handler" {
+  name       = "aws-node-termination-handler"
+  repository = data.helm_repository.node-handler.metadata[0].name
+  chart      = "eks/aws-node-termination-handler"
+  values = [
+    file(var.node-handler-path)
+  ]
+
+  namespace = var.node-handler-ns
 }
 
 # Deploy Nginx-Ingress-Controller
@@ -130,7 +139,7 @@ resource "helm_release" "datadog" {
   namespace = var.monitoring-ns
 }
 
-# Deploy Jenkins
+# Deploy Jenkins & ArgoCD
 data "helm_repository" "jenkins" {
   name = "jenkins"
   url  = "https://charts.jenkins.io"
@@ -144,7 +153,6 @@ resource "helm_release" "jenkins" {
   ]
   namespace = var.cicd-ns
 }
-# Deploy ArgoCD
 data "helm_repository" "argo" {
   name = "argo"
   url  = "https://argoproj.github.io/argo-helm"
